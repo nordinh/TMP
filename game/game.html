@@ -13,20 +13,46 @@
     <script type="text/javascript" src="lib/rx.binding.js"></script>
     <script type="text/javascript" src="lib/rx.time.js"></script>
     <script type="text/javascript" src="lib/rx.coincidence.js"></script>
+    <script type="text/javascript" src="lib/jquery-1.11.0.min.js"></script>
   </head>
   <body>
     <div id="canvas">
       <div class="ground"></div>
       <div id="pinkie"></div>
     </div>
+    <div id="character-selection" class="overlay overlay-centered overlay-lg">
+        <button class="select-character-button" data-name="nordin">Nordin</button>
+        <button class="select-character-button" data-name="davy">Davy</button>
+        <button class="select-character-button"data-name="lenne">Lenne</button>
+    </div>
 
     <script type="text/javascript">
   (function() {
     
     var canvas = document.getElementById("canvas");
-    var pinkie = document.getElementById("pinkie");
+    var pinkie = canvas.querySelector("#pinkie");
     var ground = canvas.querySelector(".ground");
-    
+
+
+    var characterSelection = (function(onClick) {
+        var characters = document.getElementById("character-selection");
+        characters.addEventListener('click', function(e) {
+            if(e.target.className = 'select-character-button') {
+                onClick(e.target.getAttribute('data-name'));
+            }
+        })
+
+        return {
+            show : function() {
+                characters.style.display = 'block';
+            },
+            hide : function() {
+                characters.style.display = 'none';
+            }
+        }
+    })(startGame);
+
+
     function bindKey(key) {
       var sub = new Rx.Subject();
       Mousetrap.bind(key, () => {
@@ -34,13 +60,13 @@
       });
       return sub;
     }
-    
+
     function velocity(oldP) {
       var p = Object.create(oldP);
       p.x += p.vx; p.y += p.vy;
       return p;
     }
-    
+
     function pinkiePhysics(oldP, keys) {
       // Apply Pinkie's velocity to her position.
       var p = velocity(oldP);
@@ -172,16 +198,17 @@
       var targets = canvas.querySelectorAll(selector);
       return toArray(targets).filter(intersectsWith.bind(null, me));
     }
-    
-    // Rx.Observable.interval(33)
-    bindKey("space")
-      // .do(() => new Audio("sfx/jump.mp3").play())
-      .buffer(Rx.Observable.interval(33))
-      .scan({ x: 64, y: 0, vx: 0, vy: 0}, pinkiePhysics)
-      .takeWhile(() => intersects(pinkie, ".hater").length === 0)
-      .concat(Rx.Observable.defer(gameOver))
-      .takeWhile(onscreen)
-      .subscribe(renderPinkie);
+
+    function startGame(characterName) {
+        characterSelection.hide();
+        bindKey("space")
+            .buffer(Rx.Observable.interval(33))
+            .scan({ x: 64, y: 0, vx: 0, vy: 0}, pinkiePhysics)
+            .takeWhile(() => intersects(pinkie, ".hater").length === 0)
+            .concat(Rx.Observable.defer(gameOver))
+            .takeWhile(onscreen)
+            .subscribe(renderPinkie, function() {}, characterSelection.show);
+    }
 
     Rx.Observable.interval(33)
       .map((x) => ((x % 64) * -8) - 128)

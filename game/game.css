@@ -62,3 +62,29 @@
     left: -512px;
     background: url(gfx/coin.gif);
 }
+
+.overlay {
+    background-color: #000;
+    opacity: 0.85;
+    z-index: 1;
+}
+
+.overlay-lg {
+    width: 70%;
+    max-width: 800px;
+    height: 70%;
+    max-height: 800px;
+}
+
+.overlay-centered {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+}
+
+.hidden {
+    display: none;
+}
