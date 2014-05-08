@@ -25,6 +25,9 @@
         <button class="select-character-button" data-name="davy">Davy</button>
         <button class="select-character-button"data-name="lenne">Lenne</button>
     </div>
+    <svg id="clock">
+        <text y="35" style="fill: #FFC125; stroke: #FF7F24;  font-size: 45px; font-family: Courier" id="timer">00:00</text>
+    </svg>
 
     <script type="text/javascript">
   (function() {
@@ -32,6 +35,8 @@
     var canvas = document.getElementById("canvas");
     var pinkie = canvas.querySelector("#pinkie");
     var ground = canvas.querySelector(".ground");
+    var timer = document.getElementById("timer");
+    var timerValue = 0;
 
 
     var characterSelection = (function(onClick) {
@@ -92,6 +97,25 @@
       }
 
       return p;
+    }
+    
+    function renderTimer() {
+    	timerValue+=33;
+    	timer.textContent = zeroPadNumber(Math.floor(timerValue / 60000))
+    	   + ':'
+    	   + zeroPadNumber(Math.floor(timerValue % 60000 / 1000));
+    }
+    
+    function zeroPadNumber ( nValue )
+    {
+        if ( nValue < 10 )
+        {
+            return ( '0' + nValue.toString () );
+        }
+        else
+        {
+            return ( nValue );
+        }
     }
     
     function renderPinkie(p) {
@@ -201,6 +225,13 @@
 
     function startGame(characterName) {
         characterSelection.hide();
+        timerValue = 0;
+        pinkie.className = null;
+        Rx.Observable.interval(33)
+        .do(renderTimer)
+        .takeWhile(() => pinkie.className !== 'gameover')
+        .subscribe();
+
         bindKey("space")
             .buffer(Rx.Observable.interval(33))
             .scan({ x: 64, y: 0, vx: 0, vy: 0}, pinkiePhysics)
@@ -213,8 +244,7 @@
     Rx.Observable.interval(33)
       .map((x) => ((x % 64) * -8) - 128)
       .subscribe((x) => ground.style.left = x + "px");
-
-
+    
     nodeStream("coin", coinPhysics, 96 * Math.random(), 5000, -6)
       .subscribe(renderNode);
     nodeStream("hater", velocity, 300, 4000, -8)
