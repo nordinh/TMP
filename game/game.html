@@ -21,9 +21,21 @@
       <div id="pinkie"><div id="face"></div></div>
     </div>
     <div id="character-selection" class="overlay overlay-centered overlay-lg">
-        <button class="select-character-button" data-name="nordin">Nordin</button>
-        <button class="select-character-button" data-name="davy">Davy</button>
-        <button class="select-character-button"data-name="lenne">Lenne</button>
+        <h1 class="character-selection-title">PLAYER SELECT</h1>
+        <div class="characters">
+            <div class="character column-3" onclick="characterSelection.select('nordin')">
+                <img class="character-image" src="gfx/lenne.png" />
+                <p>Nordin</p>
+            </div>
+            <div class="character column-3" onclick="characterSelection.select('davy')">
+                <img class="character-image" src="gfx/lenne.png" />
+                <p>Davy</p>
+            </div>
+            <div class="character column-3" onclick="characterSelection.select('lenne')">
+                <img class="character-image" src="gfx/lenne.png" />
+                <p>Lenne</p>
+            </div>
+        </div>
     </div>
     <svg id="clock">
         <text y="35" style="fill: #FFC125; stroke: #FF7F24;  font-size: 45px; font-family: Courier" id="timer">00:00</text>
@@ -40,13 +52,8 @@
     var gameStatus = 'stopped';
     var timerValue = 0;
 
-    var characterSelection = (function(onClick) {
+    window.characterSelection = (function(onClick) {
         var characterSelectionMenu = document.getElementById("character-selection");
-        characterSelectionMenu.addEventListener('click', function(e) {
-            if(e.target.className = 'select-character-button') {
-                onClick(e.target.getAttribute('data-name'));
-            }
-        })
 
         return {
             show : function() {
@@ -54,7 +61,8 @@
             },
             hide : function() {
                 characterSelectionMenu.style.display = 'none';
-            }
+            },
+            select : onClick
         }
     })(start);
 
