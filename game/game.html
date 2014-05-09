@@ -18,7 +18,7 @@
   <body>
     <div id="canvas">
       <div class="ground"></div>
-      <div id="pinkie"></div>
+      <div id="pinkie"><div id="face"></div></div>
     </div>
     <div id="character-selection" class="overlay overlay-centered overlay-lg">
         <button class="select-character-button" data-name="nordin">Nordin</button>
@@ -36,12 +36,13 @@
     var pinkie = canvas.querySelector("#pinkie");
     var ground = canvas.querySelector(".ground");
     var timer = document.getElementById("timer");
+   /*started or stopped*/
+    var gameStatus = 'stopped';
     var timerValue = 0;
 
-
     var characterSelection = (function(onClick) {
-        var characters = document.getElementById("character-selection");
-        characters.addEventListener('click', function(e) {
+        var characterSelectionMenu = document.getElementById("character-selection");
+        characterSelectionMenu.addEventListener('click', function(e) {
             if(e.target.className = 'select-character-button') {
                 onClick(e.target.getAttribute('data-name'));
             }
@@ -49,13 +50,13 @@
 
         return {
             show : function() {
-                characters.style.display = 'block';
+                characterSelectionMenu.style.display = 'block';
             },
             hide : function() {
-                characters.style.display = 'none';
+                characterSelectionMenu.style.display = 'none';
             }
         }
-    })(startGame);
+    })(start);
 
 
     function bindKey(key) {
@@ -168,7 +169,7 @@
 
           return Rx.Observable.interval(33)
             .scan({ x: 768, y: y, vx: speed, vy: 0, node: node}, physics)
-            .takeWhile((n) => onscreen(n) && !canvas.querySelector("#pinkie.gameover"))
+            .takeWhile((n) => onscreen(n) && gameStatus === 'started')
             .do(function() {}, function() {}, function() {
               canvas.removeChild(node);
             });
@@ -223,13 +224,19 @@
       return toArray(targets).filter(intersectsWith.bind(null, me));
     }
 
-    function startGame(characterName) {
+    function start(characterName) {
         characterSelection.hide();
+        pinkie.querySelector('#face').className = characterName;
+        startGame(characterSelection.show)
+    }
+
+    function startGame(gameOverCallback) {
+        gameStatus = 'started';
         timerValue = 0;
         pinkie.className = null;
         Rx.Observable.interval(33)
         .do(renderTimer)
-        .takeWhile(() => pinkie.className !== 'gameover')
+        .takeWhile(() => gameStatus === 'started')
         .subscribe();
 
         bindKey("space")
@@ -238,7 +245,10 @@
             .takeWhile(() => intersects(pinkie, ".hater").length === 0)
             .concat(Rx.Observable.defer(gameOver))
             .takeWhile(onscreen)
-            .subscribe(renderPinkie, function() {}, characterSelection.show);
+            .subscribe(renderPinkie, function() {}, function() {
+                    gameStatus = 'stopped';
+                    gameOverCallback();
+            });
     }
 
     Rx.Observable.interval(33)
