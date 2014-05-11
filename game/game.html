@@ -327,10 +327,6 @@
     function start(character) {
         characterSelection.hide();
         pinkie.querySelector('#face').className = character.name;
-        startGame(characterSelection.show)
-    }
-
-    function startGame(gameOverCallback) {
         gameStatus = 'started';
         timer.reset();
         pinkie.className = null;
@@ -347,23 +343,28 @@
             .takeWhile(onscreen)
             .subscribe(renderPinkie, function() {}, function() {
                     gameStatus = 'stopped';
-                    gameOverCallback();
+                    characterSelection.show();
             });
 
 
-        nodeStream("coin", coinPhysics, 96 * Math.random(), 5000, -6).subscribe(renderNode);
-        nodeStream("hater", velocity, 300, 4000, -8).subscribe(renderNode);
+        nodeStream("coin", coinPhysics, 96 * Math.random(), 5000, -6, character.potentieel).subscribe(renderNode);
+        nodeStream("hater", velocity, 300, 4000, -8, character.valkuilen).subscribe(renderNode);
     }
 
     Rx.Observable.interval(33)
       .map(function(x) { return ((x % 64) * -8) - 128 })
       .subscribe(function(x) { return ground.style.left = x + "px"});
 
-    function nodeStream(name, physics, y, time, speed) {
+    function nodeStream(name, physics, y, time, speed, words) {
+          function random(array) {
+              return array[Math.floor((Math.random() * (array.length - 1)) + 1)];
+          }
           return Rx.Observable.interval(time)
               .takeWhile(function() { return gameStatus === 'started' })
               .flatMap(function() {
                   var node = document.createElement("div");
+
+                  node.textContent = random(words);
                   node.className = name;
                   canvas.appendChild(node);
 
