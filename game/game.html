@@ -21,25 +21,103 @@
       <div id="pinkie"><div id="face"></div></div>
     </div>
     <div id="character-selection" class="overlay overlay-centered overlay-lg">
-        <h1 class="character-selection-title">PLAYER SELECT</h1>
+        <h1 class="character-selection-title">SELECT PLAYER</h1>
         <div class="characters">
-            <div class="character column-3" onclick="characterSelection.select('nordin')">
-                <img class="character-image" src="gfx/lenne.png" />
-                <p>Nordin</p>
+            <div class="column-3">
+                <div class="character" onclick="characterSelection.select('Nordin')">
+                    <img class="character-image" src="gfx/lenne.png" />
+                    <p class="character-title">Nordin</p>
+                    <div class="skill">
+                        <p class="skill-name">Agile mindedness</p>
+                        <div class="skill-meter progress-bar blue stripes">
+                            <span style="width: 80%"></span>
+                        </div>
+                    </div>
+                    <div class="skill">
+                        <p class="skill-name">Agile mindedness</p>
+                        <div class="skill-meter progress-bar blue stripes">
+                            <span style="width: 90%"></span>
+                        </div>
+                    </div>
+                    <div class="skill">
+                        <p class="skill-name">Agile mindedness</p>
+                        <div class="skill-meter progress-bar blue stripes">
+                            <span style="width: 20%"></span>
+                        </div>
+                    </div>
+                    <div class="skill">
+                        <p class="skill-name">Agile mindedness</p>
+                        <div class="skill-meter progress-bar blue stripes">
+                            <span style="width: 60%"></span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="character column-3" onclick="characterSelection.select('davy')">
-                <img class="character-image" src="gfx/lenne.png" />
-                <p>Davy</p>
+            <div class="column-3">
+                <div class="character" onclick="characterSelection.select('Davy')">
+                    <img class="character-image" src="gfx/lenne.png" />
+                    <p class="character-title">Davy</p>
+                    <div class="skill">
+                        <p class="skill-name">Agile mindedness</p>
+                        <div class="skill-meter progress-bar green stripes">
+                            <span style="width: 40%"></span>
+                        </div>
+                    </div>
+                    <div class="skill">
+                        <p class="skill-name">Agile mindedness</p>
+                        <div class="skill-meter progress-bar green stripes">
+                            <span style="width: 40%"></span>
+                        </div>
+                    </div>
+                    <div class="skill">
+                        <p class="skill-name">Agile mindedness</p>
+                        <div class="skill-meter progress-bar green stripes">
+                            <span style="width: 40%"></span>
+                        </div>
+                    </div>
+                    <div class="skill">
+                        <p class="skill-name">Agile mindedness</p>
+                        <div class="skill-meter progress-bar green stripes">
+                            <span style="width: 40%"></span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="character column-3" onclick="characterSelection.select('lenne')">
-                <img class="character-image" src="gfx/lenne.png" />
-                <p>Lenne</p>
+            <div class="column-3">
+                <div class="character" onclick="characterSelection.select('Lenne')">
+                    <img class="character-image" src="gfx/lenne.png" />
+                    <p class="character-title">Lenne</p>
+                    <div class="skill">
+                        <p class="skill-name">Agile mindedness</p>
+                        <div class="skill-meter progress-bar orange stripes">
+                            <span style="width: 40%"></span>
+                        </div>
+                    </div>
+                    <div class="skill">
+                        <p class="skill-name">Agile mindedness</p>
+                        <div class="skill-meter progress-bar orange stripes">
+                            <span style="width: 40%"></span>
+                        </div>
+                    </div>
+                    <div class="skill">
+                        <p class="skill-name">Agile mindedness</p>
+                        <div class="skill-meter progress-bar orange stripes">
+                            <span style="width: 40%"></span>
+                        </div>
+                    </div>
+                    <div class="skill">
+                        <p class="skill-name">Agile mindedness</p>
+                        <div class="skill-meter progress-bar orange stripes">
+                            <span style="width: 40%"></span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <svg id="clock">
-        <text y="35" style="fill: #FFC125; stroke: #FF7F24;  font-size: 45px; font-family: Courier" id="timer">00:00</text>
-    </svg>
+    <div id="timer">
+        00:00
+    </div>
 
     <script type="text/javascript">
   (function() {
@@ -51,9 +129,32 @@
    /*started or stopped*/
     var gameStatus = 'stopped';
     var timerValue = 0;
+    var characters = [
+        {
+            name: 'Nordin',
+            valkuilen: ['Te veel focus op details', 'Test', 'Nog een test'],
+            potentieel: ['Altijd bijleren', 'Analytisch', 'Nog een test']
+        },
+        {
+            name: 'Davy',
+            valkuilen: ['Te veel focus op details', 'Test', 'Nog een test'],
+            potentieel: ['Altijd bijleren', 'Analytisch', 'Nog een test']
+        },
+        {
+            name: 'Lenne',
+            valkuilen: ['Te veel focus op details', 'Test', 'Nog een test'],
+            potentieel: ['Altijd bijleren', 'Analytisch', 'Nog een test']
+        }
+    ]
 
     window.characterSelection = (function(onClick) {
         var characterSelectionMenu = document.getElementById("character-selection");
+
+        function select(characterName) {
+            onClick(characters.find(function(character) {
+                return character.name = characterName;
+            }));
+        }
 
         return {
             show : function() {
@@ -62,7 +163,7 @@
             hide : function() {
                 characterSelectionMenu.style.display = 'none';
             },
-            select : onClick
+            select : select
         }
     })(start);
 
@@ -232,9 +333,9 @@
       return toArray(targets).filter(intersectsWith.bind(null, me));
     }
 
-    function start(characterName) {
+    function start(character) {
         characterSelection.hide();
-        pinkie.querySelector('#face').className = characterName;
+        pinkie.querySelector('#face').className = character.name;
         startGame(characterSelection.show)
     }
 
