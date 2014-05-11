@@ -52,7 +52,7 @@
     width: 150px;
     height: 113px;
     left: -512px;
-    background: url(gfx/trollface.gif);
+    background: url(gfx/cactus.gif);
 }
 
 .coin {
@@ -63,7 +63,7 @@
     background: url(gfx/coin.gif);
 }
 
-#timer {
+#clock {
     position: absolute;
     top: 10px;
     right: 10px;
