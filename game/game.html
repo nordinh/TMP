@@ -14,7 +14,6 @@
     <script type="text/javascript" src="lib/rx.binding.js"></script>
     <script type="text/javascript" src="lib/rx.time.js"></script>
     <script type="text/javascript" src="lib/rx.coincidence.js"></script>
-    <script type="text/javascript" src="lib/jquery-1.11.0.min.js"></script>
   </head>
   <body>
     <div id="canvas">
@@ -127,10 +126,8 @@
     var canvas = document.getElementById("canvas");
     var pinkie = canvas.querySelector("#pinkie");
     var ground = canvas.querySelector(".ground");
-    var timer = document.getElementById("timer");
    /*started or stopped*/
     var gameStatus = 'stopped';
-    var timerValue = 0;
     var characters = [
         {
             name: 'Nordin',
@@ -153,9 +150,9 @@
         var characterSelectionMenu = document.getElementById("character-selection");
 
         function select(characterName) {
-            onClick(characters.find(function(character) {
+            onClick(characters.filter(function(character) {
                 return character.name = characterName;
-            }));
+            })[0]);
         }
 
         return {
@@ -172,9 +169,7 @@
 
     function bindKey(key) {
       var sub = new Rx.Subject();
-      Mousetrap.bind(key, () => {
-        sub.onNext(key);
-      });
+      Mousetrap.bind(key, function() { sub.onNext(key); });
       return sub;
     }
 
@@ -210,25 +205,35 @@
 
       return p;
     }
-    
-    function renderTimer() {
-    	timerValue+=33;
-    	timer.textContent = zeroPadNumber(Math.floor(timerValue / 60000))
-    	   + ':'
-    	   + zeroPadNumber(Math.floor(timerValue % 60000 / 1000));
-    }
-    
-    function zeroPadNumber ( nValue )
-    {
-        if ( nValue < 10 )
-        {
-            return ( '0' + nValue.toString () );
+
+
+    var timer = (function(domElement) {
+        var timerValue = 0;
+
+        function renderTimer() {
+            timerValue+=33;
+            domElement.textContent = zeroPadNumber(Math.floor(timerValue / 60000))
+                    + ':'
+                    + zeroPadNumber(Math.floor(timerValue % 60000 / 1000));
         }
-        else
-        {
-            return ( nValue );
+
+        function zeroPadNumber ( nValue ) {
+            if ( nValue < 10 ) {
+                return ( '0' + nValue.toString () );
+            }
+            else {
+                return ( nValue );
+            }
         }
-    }
+
+        return {
+            render : renderTimer,
+            reset : function() {
+                timerValue = 0;
+            }
+        };
+    })(document.getElementById("timer"));
+
     
     function renderPinkie(p) {
       // Apply Pinkie's position to her DOM element.
@@ -269,22 +274,6 @@
       var c = velocity(oldC);
       c.vy += 0.5;
       return c;
-    }
-
-    function nodeStream(name, physics, y, time, speed) {
-      return Rx.Observable.interval(time)
-        .flatMap(() => {
-          var node = document.createElement("div");
-          node.className = name;
-          canvas.appendChild(node);
-
-          return Rx.Observable.interval(33)
-            .scan({ x: 768, y: y, vx: speed, vy: 0, node: node}, physics)
-            .takeWhile((n) => onscreen(n) && gameStatus === 'started')
-            .do(function() {}, function() {}, function() {
-              canvas.removeChild(node);
-            });
-        })
     }
 
     function gameOver() {
@@ -343,36 +332,51 @@
 
     function startGame(gameOverCallback) {
         gameStatus = 'started';
-        timerValue = 0;
+        timer.reset();
         pinkie.className = null;
         Rx.Observable.interval(33)
-        .do(renderTimer)
-        .takeWhile(() => gameStatus === 'started')
+        .do(timer.render)
+        .takeWhile(function() { return gameStatus === 'started' })
         .subscribe();
 
         bindKey("space")
             .buffer(Rx.Observable.interval(33))
             .scan({ x: 64, y: 0, vx: 0, vy: 0}, pinkiePhysics)
-            .takeWhile(() => intersects(pinkie, ".hater").length === 0)
+            .takeWhile(function() { return intersects(pinkie, ".hater").length === 0})
             .concat(Rx.Observable.defer(gameOver))
             .takeWhile(onscreen)
             .subscribe(renderPinkie, function() {}, function() {
                     gameStatus = 'stopped';
                     gameOverCallback();
             });
+
+
+        nodeStream("coin", coinPhysics, 96 * Math.random(), 5000, -6).subscribe(renderNode);
+        nodeStream("hater", velocity, 300, 4000, -8).subscribe(renderNode);
     }
 
     Rx.Observable.interval(33)
-      .map((x) => ((x % 64) * -8) - 128)
-      .subscribe((x) => ground.style.left = x + "px");
-    
-    nodeStream("coin", coinPhysics, 96 * Math.random(), 5000, -6)
-      .subscribe(renderNode);
-    nodeStream("hater", velocity, 300, 4000, -8)
-      .subscribe(renderNode);
+      .map(function(x) { return ((x % 64) * -8) - 128 })
+      .subscribe(function(x) { return ground.style.left = x + "px"});
+
+    function nodeStream(name, physics, y, time, speed) {
+          return Rx.Observable.interval(time)
+              .takeWhile(function() { return gameStatus === 'started' })
+              .flatMap(function() {
+                  var node = document.createElement("div");
+                  node.className = name;
+                  canvas.appendChild(node);
+
+                  return Rx.Observable.interval(33)
+                          .scan({ x: 768, y: y, vx: speed, vy: 0, node: node}, physics)
+                          .takeWhile(function(n) {return onscreen(n) && gameStatus === 'started'})
+                          .do(function() {}, function() {}, function() {
+                                  canvas.removeChild(node);
+                          });
+              });
+      }
 
   })();
     </script>
-    <script type="text/javascript" src="../src/modules/editor/client.js"></script>
   </body>
 </html>
