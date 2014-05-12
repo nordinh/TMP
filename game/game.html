@@ -119,6 +119,9 @@
         <i class="fa fa-clock-o"></i>
         <span id="timer">00:00</span>
     </div>
+    <div id="levelPanel">
+        <span id="levelText">Level 1</span>
+    </div>
 
     <script type="text/javascript">
   (function() {
@@ -128,6 +131,8 @@
     var ground = canvas.querySelector(".ground");
    /*started or stopped*/
     var gameStatus = 'stopped';
+    var levelText = document.getElementById("levelText");
+    var level = 1;
     var characters = [
         {
             name: 'Nordin',
@@ -184,7 +189,7 @@
       var p = velocity(oldP);
 
       // Apply gravity to Pinkie's velocity.
-      p.vy += 0.98;
+      p.vy += (0.98 * level);
 
       // AS Pinkie Pie,
       // GIVEN that I'm falling
@@ -198,7 +203,7 @@
       if (keys[0] === "space") {
         // p.vy = -20; // wheeee infinite jump
         if (p.y === 0) {
-          p.vy = -20;
+          p.vy = -20 -((level-1) * 8);
           new Audio("sfx/jump.mp3").play();
         }
       }
@@ -211,7 +216,12 @@
         var timerValue = 0;
 
         function renderTimer() {
-            timerValue+=33;
+        	if (pinkie.className != 'gameover') {
+        	    timerValue+=33;
+        	}
+            level = Math.floor(timerValue / 10000) + 1;
+            
+            levelText.textContent = "Level " + level;
             domElement.textContent = zeroPadNumber(Math.floor(timerValue / 60000))
                     + ':'
                     + zeroPadNumber(Math.floor(timerValue % 60000 / 1000));
@@ -230,6 +240,7 @@
             render : renderTimer,
             reset : function() {
                 timerValue = 0;
+                level = 1;
             }
         };
     })(document.getElementById("timer"));
@@ -347,12 +358,12 @@
             });
 
 
-        nodeStream("coin", coinPhysics, 96 * Math.random(), 5000, -6, character.potentieel).subscribe(renderNode);
-        nodeStream("hater", velocity, 300, 4000, -8, character.valkuilen).subscribe(renderNode);
+        nodeStream("coin", coinPhysics, 96 * Math.random(), 5000, -8 * level, character.potentieel).subscribe(renderNode);
+        nodeStream("hater", velocity, 300, 3000, -8 * level, character.valkuilen).subscribe(renderNode);
     }
 
     Rx.Observable.interval(33)
-      .map(function(x) { return ((x % 64) * -8) - 128 })
+      .map(function(x) { return ((x % 64) * (-8 * level)) - 128 })
       .subscribe(function(x) { return ground.style.left = x + "px"});
 
     function nodeStream(name, physics, y, time, speed, words) {
@@ -369,7 +380,7 @@
                   canvas.appendChild(node);
 
                   return Rx.Observable.interval(33)
-                          .scan({ x: 768, y: y, vx: speed, vy: 0, node: node}, physics)
+                          .scan({ x: 768, y: y, vx: -8 * level, vy: 0, node: node}, function(n) {n.vx = -8 * level;return physics(n)})
                           .takeWhile(function(n) {return onscreen(n) && gameStatus === 'started'})
                           .do(function() {}, function() {}, function() {
                                   canvas.removeChild(node);
