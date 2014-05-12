@@ -20,6 +20,7 @@
       <div class="ground"></div>
       <div id="pinkie"><div id="face"></div></div>
     </div>
+    <div id="banner" class="hidden"></div>
     <div id="character-selection" class="overlay overlay-centered overlay-lg">
         <h1 class="character-selection-title">SELECT PLAYER</h1>
         <div class="characters">
@@ -140,6 +141,7 @@
     var canvas = document.getElementById("canvas");
     var pinkie = canvas.querySelector("#pinkie");
     var ground = canvas.querySelector(".ground");
+    var banner = document.getElementById("banner");
    /*started or stopped*/
     var gameStatus = 'stopped';
     var level = 1;
@@ -302,6 +304,11 @@
       // If Pinkie touches the coin, ding it!
       if (c.vy === 0 && intersects(c.node, "#pinkie").length) {
         new Audio("sfx/coin.mp3").play();
+          banner.style.display = 'block';
+          banner.innerHTML = '<i class="fa fa-star"></i> ' + c.node.querySelector('.text').textContent + ' <i class="fa fa-star"></i> ';
+          setTimeout(function() {
+            banner.style.display = 'none';
+          }, 3000);
         coins++;
         c.vx = 0; c.vy = -1;
       }
@@ -406,9 +413,13 @@
               .takeWhile(function() { return gameStatus === 'started' })
               .flatMap(function() {
                   var node = document.createElement("div");
+                  node.className = 'node ' + name;
 
-                  node.textContent = random(words);
-                  node.className = name;
+                  var textNode = document.createElement("div");
+                  textNode.className = 'text';
+                  textNode.textContent = random(words);
+
+                  node.appendChild(textNode);
                   canvas.appendChild(node);
 
                   return Rx.Observable.interval(33)
