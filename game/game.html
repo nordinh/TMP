@@ -115,12 +115,23 @@
             </div>
         </div>
     </div>
-    <div id="clock">
-        <i class="fa fa-clock-o"></i>
-        <span id="timer">00:00</span>
+    <div class="right top">
+        <div class="info-panel">
+            <i class="fa fa-clock-o"></i>
+            <span id="timer">00:00</span>
+        </div>
+        <div class="info-panel">
+            <i class="fa fa-star"></i>
+            <span id="coins">0 x 500</span>
+        </div>
+        <div class="info-panel">
+            <i class="fa fa-bullhorn"></i>
+            <span id="points">0</span>
+        </div>
     </div>
-    <div id="levelPanel">
-        <span id="levelText">Level 1</span>
+    <div class="left top info-panel">
+        <i class="fa fa-flash"></i>
+        <span id="level">level 1</span>
     </div>
 
     <script type="text/javascript">
@@ -131,8 +142,8 @@
     var ground = canvas.querySelector(".ground");
    /*started or stopped*/
     var gameStatus = 'stopped';
-    var levelText = document.getElementById("levelText");
     var level = 1;
+    var coins = 0;
     var characters = [
         {
             name: 'Nordin',
@@ -212,19 +223,32 @@
     }
 
 
-    var timer = (function(domElement) {
+    var timer = (function(timerElement, levelElement, coinsElement, pointsElement) {
         var timerValue = 0;
 
-        function renderTimer() {
-        	if (pinkie.className != 'gameover') {
+        function updateTimerValue() {
+        	if (gameStatus === 'started') {
         	    timerValue+=33;
         	}
-            level = Math.floor(timerValue / 10000) + 1;
-            
-            levelText.textContent = "Level " + level;
-            domElement.textContent = zeroPadNumber(Math.floor(timerValue / 60000))
+        }
+
+        function renderTimer() {
+            timerElement.textContent = zeroPadNumber(Math.floor(timerValue / 60000))
                     + ':'
                     + zeroPadNumber(Math.floor(timerValue % 60000 / 1000));
+        }
+
+        function renderLevel() {
+            level = Math.floor(timerValue / 10000) + 1;
+            levelElement.textContent = "level " + level;
+        }
+
+        function renderCoins() {
+             coinsElement.textContent = coins + ' x 500';
+        }
+
+        function renderPoints() {
+             pointsElement.textContent = (coins * 500) + Math.floor(timerValue / 1000) * 100;
         }
 
         function zeroPadNumber ( nValue ) {
@@ -237,13 +261,19 @@
         }
 
         return {
-            render : renderTimer,
+            render : function() {
+                updateTimerValue();
+                renderTimer();
+                renderLevel();
+                renderCoins();
+                renderPoints();
+            },
             reset : function() {
                 timerValue = 0;
                 level = 1;
             }
         };
-    })(document.getElementById("timer"));
+    })(document.getElementById("timer"), document.getElementById("level"), document.getElementById("coins"), document.getElementById("points"));
 
     
     function renderPinkie(p) {
@@ -272,6 +302,7 @@
       // If Pinkie touches the coin, ding it!
       if (c.vy === 0 && intersects(c.node, "#pinkie").length) {
         new Audio("sfx/coin.mp3").play();
+        coins++;
         c.vx = 0; c.vy = -1;
       }
       if (c.vy < 0) {
@@ -340,6 +371,7 @@
         pinkie.querySelector('#face').className = character.name;
         gameStatus = 'started';
         timer.reset();
+        points = coins = 0;
         pinkie.className = null;
         Rx.Observable.interval(33)
         .do(timer.render)
@@ -353,8 +385,8 @@
             .concat(Rx.Observable.defer(gameOver))
             .takeWhile(onscreen)
             .subscribe(renderPinkie, function() {}, function() {
-                    gameStatus = 'stopped';
-                    characterSelection.show();
+                gameStatus = 'stopped';
+                characterSelection.show();
             });
 
 
@@ -363,7 +395,7 @@
     }
 
     Rx.Observable.interval(33)
-      .map(function(x) { return ((x % 64) * (-8 * level)) - 128 })
+      .map(function(x) { return ((x % 64) * (-8 * (gameStatus === 'started' ? level : 1))) - 128 })
       .subscribe(function(x) { return ground.style.left = x + "px"});
 
     function nodeStream(name, physics, y, time, speed, words) {

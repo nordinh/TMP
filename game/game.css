@@ -7,6 +7,11 @@
     border: 0;
 }
 
+html {
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
 #canvas {
     position: absolute;
     top: 0;
@@ -63,24 +68,23 @@
     background: url(gfx/coin.gif);
 }
 
-#clock {
+
+.top {
     position: absolute;
     top: 10px;
-    right: 10px;
-    border: 5px solid #222;
-    opacity: 0.9;
-    font-weight: bold;
-    font-size: 30px;
-    font-family: sans-serif;
-    background-color: #444;
-    color: #fff;
-    padding: 10px;
 }
 
-#levelPanel {
+.left {
     position: absolute;
-    top: 10px;
     left: 10px;
+}
+
+.right {
+    position: absolute;
+    right: 10px;
+}
+
+.info-panel {
     border: 5px solid #222;
     opacity: 0.9;
     font-weight: bold;
@@ -89,6 +93,8 @@
     background-color: #444;
     color: #fff;
     padding: 10px;
+    display: inline-block;
+    margin-left: 20px;
 }
 
 #face {
