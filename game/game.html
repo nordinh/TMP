@@ -144,8 +144,9 @@
     var banner = document.getElementById("banner");
    /*started or stopped*/
     var gameStatus = 'stopped';
-    var level = 1;
+    var level = 0;
     var coins = 0;
+    var selectedCharacter;
     var characters = [
         {
             name: 'Nordin',
@@ -241,8 +242,12 @@
         }
 
         function renderLevel() {
-            level = Math.floor(timerValue / 10000) + 1;
-            levelElement.textContent = "level " + level;
+        	if (level !== Math.floor(timerValue / 10000) + 1) {
+        	    level = Math.floor(timerValue / 10000) + 1;
+        	    nodeStream("coin", coinPhysics, 96 * Math.random(), Math.floor(5000 / level) , -8 * level, selectedCharacter.potentieel, level).subscribe(renderNode);
+                nodeStream("hater", velocity, 300, Math.floor(3000 / level) , -8 * level, selectedCharacter.valkuilen, level).subscribe(renderNode);
+        	}
+        	levelElement.textContent = "level " + level;
         }
 
         function renderCoins() {
@@ -272,7 +277,7 @@
             },
             reset : function() {
                 timerValue = 0;
-                level = 1;
+                level = 0;
             }
         };
     })(document.getElementById("timer"), document.getElementById("level"), document.getElementById("coins"), document.getElementById("points"));
@@ -372,8 +377,9 @@
       var targets = canvas.querySelectorAll(selector);
       return toArray(targets).filter(intersectsWith.bind(null, me));
     }
-
+    
     function start(character) {
+    	selectedCharacter = character;
         characterSelection.hide();
         pinkie.querySelector('#face').className = character.name;
         gameStatus = 'started';
@@ -395,22 +401,18 @@
                 gameStatus = 'stopped';
                 characterSelection.show();
             });
-
-
-        nodeStream("coin", coinPhysics, 96 * Math.random(), 5000, -8 * level, character.potentieel).subscribe(renderNode);
-        nodeStream("hater", velocity, 300, 3000, -8 * level, character.valkuilen).subscribe(renderNode);
     }
 
     Rx.Observable.interval(33)
       .map(function(x) { return ((x % 64) * (-8 * (gameStatus === 'started' ? level : 1))) - 128 })
       .subscribe(function(x) { return ground.style.left = x + "px"});
-
-    function nodeStream(name, physics, y, time, speed, words) {
+    
+    function nodeStream(name, physics, y, time, speed, words, forLevel) {
           function random(array) {
               return array[Math.floor((Math.random() * (array.length - 1)) + 1)];
           }
           return Rx.Observable.interval(time)
-              .takeWhile(function() { return gameStatus === 'started' })
+              .takeWhile(function() { return gameStatus === 'started' && forLevel === level })
               .flatMap(function() {
                   var node = document.createElement("div");
                   node.className = 'node ' + name;
