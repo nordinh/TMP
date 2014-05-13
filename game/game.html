@@ -56,7 +56,7 @@
             </div>
             <div class="column-3">
                 <div class="character" onclick="characterSelection.select('Davy')">
-                    <img class="character-image" src="gfx/lenne.png" />
+                    <img class="character-image" src="gfx/davy.png" />
                     <p class="character-title">Davy</p>
                     <div class="skill">
                         <p class="skill-name">Agile mindedness</p>
@@ -89,27 +89,27 @@
                     <img class="character-image" src="gfx/lenne.png" />
                     <p class="character-title">Lenne</p>
                     <div class="skill">
-                        <p class="skill-name">Agile mindedness</p>
+                        <p class="skill-name">Teamspeler</p>
                         <div class="skill-meter progress-bar orange stripes">
-                            <span style="width: 40%"></span>
+                            <span style="width: 90%"></span>
                         </div>
                     </div>
                     <div class="skill">
-                        <p class="skill-name">Agile mindedness</p>
+                        <p class="skill-name">Software enthousiast</p>
                         <div class="skill-meter progress-bar orange stripes">
-                            <span style="width: 40%"></span>
+                            <span style="width: 100%"></span>
                         </div>
                     </div>
                     <div class="skill">
-                        <p class="skill-name">Agile mindedness</p>
+                        <p class="skill-name">Positivist</p>
                         <div class="skill-meter progress-bar orange stripes">
-                            <span style="width: 40%"></span>
+                            <span style="width: 80%"></span>
                         </div>
                     </div>
                     <div class="skill">
-                        <p class="skill-name">Agile mindedness</p>
+                        <p class="skill-name">Verantwoordelijk</p>
                         <div class="skill-meter progress-bar orange stripes">
-                            <span style="width: 40%"></span>
+                            <span style="width: 80%"></span>
                         </div>
                     </div>
                 </div>
@@ -150,18 +150,18 @@
     var characters = [
         {
             name: 'Nordin',
-            valkuilen: ['Te veel focus op details', 'Test', 'Nog een test'],
-            potentieel: ['Altijd bijleren', 'Analytisch', 'Nog een test']
+            potentieel: ['Altijd bijleren', 'Analytisch', 'Nog een test'],
+            valkuilen: ['Te veel focus op details', 'Test', 'Nog een test']
         },
         {
             name: 'Davy',
-            valkuilen: ['Te veel focus op details', 'Test', 'Nog een test'],
-            potentieel: ['Altijd bijleren', 'Analytisch', 'Nog een test']
+            potentieel: ['Altijd bijleren', 'Analytisch', 'Nog een test'],
+            valkuilen: ['Te veel focus op details', 'Test', 'Nog een test']
         },
         {
             name: 'Lenne',
-            valkuilen: ['Te veel focus op details', 'Test', 'Nog een test'],
-            potentieel: ['Altijd bijleren', 'Analytisch', 'Nog een test']
+            potentieel: ['Creatief', 'Analytisch', 'Positivist', 'Software enthousiast', 'Teamspeler'],
+            valkuilen: ['Perfectionistisch', 'Leren delegeren', 'Te diplomatisch']
         }
     ]
 
@@ -170,7 +170,7 @@
 
         function select(characterName) {
             onClick(characters.filter(function(character) {
-                return character.name = characterName;
+                return character.name === characterName;
             })[0]);
         }
 
@@ -408,9 +408,11 @@
       .subscribe(function(x) { return ground.style.left = x + "px"});
     
     function nodeStream(name, physics, y, time, speed, words, forLevel) {
-          function random(array) {
-              return array[Math.floor((Math.random() * (array.length - 1)) + 1)];
-          }
+
+        function random(min, max) {
+            return  Math.floor((Math.random() * max) + min);
+        }
+
           return Rx.Observable.interval(time)
               .takeWhile(function() { return gameStatus === 'started' && forLevel === level })
               .flatMap(function() {
@@ -419,7 +421,8 @@
 
                   var textNode = document.createElement("div");
                   textNode.className = 'text';
-                  textNode.textContent = random(words);
+                      console.log(random(0, words.length - 1));
+                  textNode.textContent = words[random(0, words.length - 1)];
 
                   node.appendChild(textNode);
                   canvas.appendChild(node);

@@ -177,19 +177,19 @@ DAVY
 */
 
 #face.Davy {
-    background: url('gfx/lenne.png') no-repeat 0 0 / contain;
+    background: url('gfx/davy.png') no-repeat 0 0 / contain;
 }
 
 .jumping #face.Davy {
     top: 0;
     right: 0;
-    background: url('gfx/lenne-jumping.png') no-repeat 0 0 / contain;
+    background: url('gfx/davy-jumping.png') no-repeat 0 0 / contain;
 }
 
 .gameover #face.Davy {
     top: 10px;
     right: 10px;
-    background: url('gfx/lenne-jumping.png') no-repeat 0 0 / contain;
+    background: url('gfx/davy-jumping.png') no-repeat 0 0 / contain;
 }
 
 /*
