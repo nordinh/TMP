@@ -26,30 +26,30 @@
         <div class="characters">
             <div class="column-3">
                 <div class="character" onclick="characterSelection.select('Nordin')">
-                    <img class="character-image" src="gfx/lenne.png" />
+                    <img class="character-image" src="gfx/nordin.png" />
                     <p class="character-title">Nordin</p>
                     <div class="skill">
-                        <p class="skill-name">Agile mindedness</p>
+                        <p class="skill-name">DIY</p>
+                        <div class="skill-meter progress-bar blue stripes">
+                            <span style="width: 60%"></span>
+                        </div>
+                    </div>
+                    <div class="skill">
+                        <p class="skill-name">Stripverzamelaar</p>
                         <div class="skill-meter progress-bar blue stripes">
                             <span style="width: 80%"></span>
                         </div>
                     </div>
                     <div class="skill">
-                        <p class="skill-name">Agile mindedness</p>
+                        <p class="skill-name">Zondagskok</p>
                         <div class="skill-meter progress-bar blue stripes">
-                            <span style="width: 90%"></span>
+                            <span style="width: 65%"></span>
                         </div>
                     </div>
                     <div class="skill">
-                        <p class="skill-name">Agile mindedness</p>
+                        <p class="skill-name">Voetbaltrainer</p>
                         <div class="skill-meter progress-bar blue stripes">
-                            <span style="width: 20%"></span>
-                        </div>
-                    </div>
-                    <div class="skill">
-                        <p class="skill-name">Agile mindedness</p>
-                        <div class="skill-meter progress-bar blue stripes">
-                            <span style="width: 60%"></span>
+                            <span style="width: 75%"></span>
                         </div>
                     </div>
                 </div>
@@ -150,8 +150,8 @@
     var characters = [
         {
             name: 'Nordin',
-            potentieel: ['Altijd bijleren', 'Analytisch', 'Nog een test'],
-            valkuilen: ['Te veel focus op details', 'Test', 'Nog een test']
+            potentieel: ['Creatief', 'Empathie', 'Denker', 'Out-of-the-box'],
+            valkuilen: ['Zweverig', 'Manipulatief', 'My way or the ...', 'Te abstract']
         },
         {
             name: 'Davy',
@@ -244,7 +244,7 @@
         function renderLevel() {
         	if (level !== Math.floor(timerValue / 10000) + 1) {
         	    level = Math.floor(timerValue / 10000) + 1;
-        	    nodeStream("coin", coinPhysics, 96 * Math.random(), Math.floor(5000 / level) , -8 * level, selectedCharacter.potentieel, level).subscribe(renderNode);
+        	    nodeStream("coin", coinPhysics, 96 * Math.random(), Math.floor(1900 / level) , -8 * level, selectedCharacter.potentieel, level).subscribe(renderNode);
                 nodeStream("hater", velocity, 300, Math.floor(3000 / level) , -8 * level, selectedCharacter.valkuilen, level).subscribe(renderNode);
         	}
         	levelElement.textContent = "level " + level;
